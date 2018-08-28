@@ -11,7 +11,7 @@ export default class Transaction extends Component {
         <Text style={styles.loser}>{from}</Text>
         <Text> should pay </Text>
         <Text style={styles.winner}>{to}</Text>
-        <Text style={styles.payout}> ${payout}</Text>
+        <Text style={styles.payout}> ${payout.toFixed(2)}</Text>
       </View>
     );
   }

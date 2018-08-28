@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { StyleSheet, View, Text, TouchableHighlight, Button } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import PlayerCard from '../components/HomeScreen/PlayerCard';
 import { calculatePayouts } from '../util/payoutCalculation';
 
@@ -50,14 +51,41 @@ export default class HomeScreen extends Component {
     }));
   }
 
-  calculatePayouts() {
-    const payouts = calculatePayouts(this.state.players);
-    this.props.navigation.navigate('Result', {payouts});
+  calculateCurrentNetPayout() {
+    let netPayout = 0;
+    this.state.players.forEach(({ moneyDifference, isWinner }) => {
+      if(moneyDifference && isWinner !== undefined) {
+        netPayout += (isWinner ? 1 : -1) * moneyDifference;
+      }
+    });
+
+    return netPayout;
+  }
+
+  calculatePayouts(hasValidMoneyDistribution) {
+    if(hasValidMoneyDistribution) {
+      const payouts = calculatePayouts(this.state.players);
+      this.props.navigation.navigate('Result', {payouts});
+    }
   }
 
   render() {
+    const bodyStyles = {};
+    if(this.state.players.length < 4) {
+      bodyStyles.height = '100%';
+    }
+
+    const netPayout = this.calculateCurrentNetPayout();
+    let calculateBtnStyles = {};
+    if(netPayout !== 0) {
+      calculateBtnStyles.backgroundColor = '#ADADAD';
+    }
+
+    console.log(netPayout);
+
     return (
-      <View style={styles.body}>
+      <KeyboardAwareScrollView contentContainerStyle={[styles.body, bodyStyles]}
+        keyboardDismissMode="on-drag">
         {this.state.players.map(player => (
           <PlayerCard 
             {...player} 
@@ -72,14 +100,18 @@ export default class HomeScreen extends Component {
           />
         </View>
 
-        <TouchableHighlight style={styles.calculateButton}
+        <TouchableHighlight style={[styles.calculateButton, calculateBtnStyles]}
           activeOpacity={0.8}
-          onPress={this.calculatePayouts.bind(this)}>
+          onPress={() => this.calculatePayouts(netPayout === 0)}>
           <View>
-            <Text style={styles.calculateBtnText}>Calculate Payouts</Text>
+            <Text style={styles.calculateBtnText}>
+              Calculate Payouts 
+              {netPayout !== 0 && 
+                <Text> (${netPayout.toFixed(2)})</Text>}
+            </Text>
           </View>
         </TouchableHighlight>
-      </View>
+      </KeyboardAwareScrollView>
     )
   }
 }
@@ -87,9 +119,8 @@ export default class HomeScreen extends Component {
 const styles = StyleSheet.create({
   body: {
     backgroundColor: '#ffffff',
-    height: '100%',
     alignItems: 'center',
-    paddingTop: 24
+    paddingVertical: 24
   },
   addPlayerButton: {
     marginTop: 18,

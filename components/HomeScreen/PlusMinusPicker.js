@@ -33,7 +33,7 @@ export default class PlusMinusPicker extends Component {
             activeOpacity={0.8} 
             onPress={() => this.props.onClearSelection()}>
             <View style={[styles.resultBlock, resultBlockStyle]}>
-              <Ionicons style={styles.checkIcon} name="ios-checkmark" size={120} color="rgba(255, 255, 255, 0.8)" />
+              <Ionicons style={styles.checkIcon} name="ios-checkmark" size={120} color="white" />
             </View>
           </TouchableHighlight>
         </View>
